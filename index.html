@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الحركة في سكراتش - ابتدائية خالدة الأنصاري</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
+            --primary-btn: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            --success-btn: #27ae60;
+            --error-btn: #e74c3c;
+            --school-red: #8e1b1b; /* لون المدرسة المغاير */
+            --cert-gold: #c5a059;
+            --text-dark: #2d3436;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-gradient);
+            margin: 0; padding: 0;
+            color: var(--text-dark);
+            text-align: center;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+        }
+
+        /* الشريط العلوي */
+        .top-bar {
+            width: 100%; background: rgba(255, 255, 255, 0.98);
+            padding: 12px 0; position: fixed; top: 0; left: 0; z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); display: none;
+            font-weight: 800;
+        }
+
+        .screen { 
+            display: none; width: 100%; padding-top: 90px; padding-bottom: 20px;
+            flex-direction: column; align-items: center; justify-content: center;
+            flex: 1; box-sizing: border-box;
+        }
+        .active { display: flex; }
+
+        .card {
+            background: #fff; padding: 40px; border-radius: 25px;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.1); width: 90%; max-width: 800px;
+            border: 4px solid #fff; margin-bottom: 20px;
+        }
+
+        h1 { color: #6c5ce7; font-size: 2.5rem; margin-bottom: 10px; font-weight: 900; }
+
+        .opt-btn {
+            width: 100%; padding: 15px; border-radius: 15px; border: 2px solid #dfe6e9;
+            background: #fdfdfd; font-family: 'Cairo'; font-size: 1.2rem; font-weight: 700;
+            cursor: pointer; margin: 8px 0; transition: 0.3s; text-align: right;
+        }
+        .opt-btn:hover { border-color: #6c5ce7; background: #f8f7ff; }
+        .opt-correct { background: #d4edda !important; border-color: #28a745 !important; color: #155724; }
+        .opt-wrong { background: #f8d7da !important; border-color: #dc3545 !important; color: #721c24; }
+
+        .tf-btn {
+            width: 150px; height: 60px; border-radius: 15px; border: none;
+            color: white; font-family: 'Cairo'; font-weight: 900; font-size: 1.3rem; cursor: pointer; margin: 10px;
+        }
+
+        .btn-action {
+            margin-top: 20px; padding: 12px 45px; background-image: var(--primary-btn);
+            color: white; border-radius: 50px; border: none; font-family: 'Cairo';
+            font-weight: 900; font-size: 1.3rem; cursor: pointer;
+        }
+
+        /* التذييل في جميع الشاشات */
+        .page-footer {
+            width: 100%; padding: 15px 0; background: rgba(255,255,255,0.7);
+            display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;
+            border-top: 1px solid #ddd; margin-top: auto;
+        }
+        .footer-item {
+            background: #fff; padding: 5px 15px; border-radius: 10px; border: 1px solid #ccc;
+            font-size: 0.85rem; font-weight: 800; color: #444;
+        }
+
+        /* =========================================
+           تصميم الشهادة الاحترافي والمنسق
+           ========================================= */
+        #cert-screen { display: none; background: #fff; width: 100%; }
+        
+        .cert-outer-wrapper {
+            width: 210mm; height: 297mm; background: #fff; margin: 0 auto;
+            display: flex; align-items: center; justify-content: center;
+            box-sizing: border-box; overflow: hidden;
+        }
+
+        /* برواز الشهادة */
+        .cert-inner-frame {
+            width: 190mm; height: 275mm; border: 10px double var(--cert-gold);
+            box-shadow: inset 0 0 0 4px #1a5276; padding: 40px; box-sizing: border-box;
+            display: flex; flex-direction: column; justify-content: space-between;
+            position: relative; text-align: center; background: #fff;
+        }
+
+        .cert-head { margin-bottom: 20px; }
+        .cert-title-text { font-size: 4rem; color: #1a5276; font-weight: 900; margin: 0; }
+        .cert-school-name { font-size: 2.2rem; color: var(--school-red); font-weight: 900; margin: 10px 0; }
+
+        .cert-body-msg { font-size: 1.6rem; color: #333; line-height: 1.8; margin-top: 20px; }
+
+        /* تنسيق الطالبة والفصل المتشابه */
+        .student-highlight-box {
+            background: #fdfaf0; border: 2px solid var(--cert-gold);
+            padding: 20px; border-radius: 20px; margin: 25px auto; width: 85%;
+        }
+        .std-name { font-size: 3.2rem; color: #e84393; font-weight: 900; display: block; margin-bottom: 5px; }
+        .std-grade { font-size: 1.8rem; color: #2d3436; font-weight: 700; border-top: 1px dashed #c5a059; padding-top: 10px; }
+
+        .score-medal-box {
+            font-size: 3.5rem; color: #27ae60; font-weight: 900;
+            border: 5px dashed #27ae60; padding: 10px 60px;
+            border-radius: 50px; display: inline-block; margin: 20px 0;
+        }
+
+        .cert-footer-info {
+            display: flex; justify-content: space-between; margin-top: 40px; border-top: 2px solid #eee; padding-top: 20px;
+        }
+        .sig-unit { width: 32%; text-align: center; }
+        .sig-lab { font-size: 1rem; color: #666; margin-bottom: 5px; }
+        .sig-val { font-size: 1.3rem; font-weight: 900; color: #2d3436; border-top: 2px solid #1a5276; padding-top: 5px; display: block; }
+
+        /* أوامر الطباعة الصارمة */
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            body, html { width: 210mm; height: 297mm; background: #fff !important; }
+            .no-print { display: none !important; }
+            .screen { display: none !important; }
+            #cert-screen { display: block !important; padding: 0 !important; margin: 0 !important; }
+            .cert-outer-wrapper { width: 210mm; height: 297mm; border: none; padding: 0; margin: 0; }
+            .cert-inner-frame { width: 210mm; height: 297mm; border-width: 15px; border-style: double; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar" id="topBar">
+        <span style="float: right; margin-right: 30px;">الطالبة المبدعة: <span id="dispName" style="color:#e84393;"></span></span>
+        <span style="background:#ffeaa7; padding:4px 20px; border-radius:50px; margin-right:15px; color:#333;">الدرجة: <span id="dispScore">0</span> / 15</span>
+    </div>
+
+    <div id="screen-login" class="screen active">
+        <div class="card">
+            <h1>🌸 الحركة في سكراتش 🌸</h1>
+            <p style="font-size: 1.6rem; font-weight: 800;">عالم المهارات الرقمية الممتع</p>
+            <input type="text" id="pName" class="opt-btn" style="text-align:center; max-width:450px; margin:10px auto; display:block;" placeholder="اسم الطالبة الثلاثي">
+            <input type="text" id="pGrade" class="opt-btn" style="text-align:center; max-width:450px; margin:10px auto; display:block;" placeholder="الصف الدراسي">
+            <button class="btn-action" onclick="startGame()">ابدأ التحدي 🚀</button>
+        </div>
+        <div class="page-footer">
+            <div class="footer-item">🎨 إعداد وتصميم المعلمة: غادة القحطاني</div>
+            <div class="footer-item">🏫 ابتدائية خالدة الأنصاري</div>
+            <div class="footer-item">👑 قائدة المدرسة الاستاذة: هند المريبض</div>
+        </div>
+    </div>
+
+    <div id="screen-mcq" class="screen">
+        <div class="card">
+            <h2 style="color:#0984e3;">المرحلة1 : اختاري الكلمة الصحيحة لإكمال الفراغ</h2>
+            <h3 id="mcq-text" style="font-size: 1.4rem; margin: 15px 0;">السؤال...</h3>
+            <div id="mcq-options"></div>
+            <div id="mcq-fb" class="feedback"></div>
+        </div>
+        <div class="page-footer">
+            <div class="footer-item">🎨 إعداد وتصميم المعلمة: غادة القحطاني</div>
+            <div class="footer-item">🏫 ابتدائية خالدة الأنصاري</div>
+            <div class="footer-item">👑 قائدة المدرسة الاستاذة: هند المريبض</div>
+        </div>
+    </div>
+
+    <div id="screen-tf" class="screen">
+        <div class="card">
+            <h2 style="color:#e17055;">المرحلة2 : حددي الإجابة الصحيحة و الإجابة الخاطئة</h2>
+            <h3 id="tf-text" style="font-size: 1.6rem; margin: 25px 0;">العبارة...</h3>
+            <div style="display:flex; justify-content:center;">
+                <button class="tf-btn" style="background:#27ae60;" onclick="ansTF(true)">صح ✅</button>
+                <button class="tf-btn" style="background:#e74c3c;" onclick="ansTF(false)">خطأ ❌</button>
+            </div>
+            <div id="tf-fb" class="feedback"></div>
+        </div>
+        <div class="page-footer">
+            <div class="footer-item">🎨 إعداد وتصميم المعلمة: غادة القحطاني</div>
+            <div class="footer-item">🏫 ابتدائية خالدة الأنصاري</div>
+            <div class="footer-item">👑 قائدة المدرسة الاستاذة: هند المريبض</div>
+        </div>
+    </div>
+
+    <div id="cert-screen">
+        <div class="cert-outer-wrapper">
+            <div class="cert-inner-frame">
+                <div class="cert-head">
+                    <div class="cert-title-text">شهادة شكر وتقدير</div>
+                    <div class="cert-school-name">ابتدائية خالدة الأنصاري</div>
+                </div>
+
+                <div class="cert-body-content">
+                    <div>بفخر واعتزاز، نتقدم بأجمل التهاني للطالبة المبدعة:</div>
+
+                    <div class="student-highlight-box">
+                        <span id="cert-name" class="std-name">...</span>
+                        <div class="std-grade">بالصف: <span id="cert-grade"></span></div>
+                    </div>
+
+                    <div>لاجتيازها بنجاح كافة مهام درس "الحركة في سكراتش" <br> ضمن مادة المهارات الرقمية وحصولها على التقييم النهائي:</div>
+
+                    <div>
+                        <div class="score-medal-box"><span id="cert-score">0</span> / 15</div>
+                    </div>
+
+                    <div id="cert-msg" style="color: #d35400; font-weight: 800; font-size: 1.3rem;">...</div>
+                </div>
+
+                <div class="cert-footer-info">
+                    <div class="sig-unit">
+                        <span class="sig-lab">التاريخ</span>
+                        <span id="cert-date" class="sig-val"></span>
+                    </div>
+                    <div class="sig-unit">
+                        <span class="sig-lab">إعداد وتصميم المعلمة</span>
+                        <span class="sig-val">غادة القحطاني</span>
+                    </div>
+                    <div class="sig-unit">
+                        <span class="sig-lab">قائدة المدرسة الاستاذة</span>
+                        <span class="sig-val">هند المريبض</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-footer no-print">
+            <div class="footer-item">🎨 إعداد وتصميم المعلمة: غادة القحطاني</div>
+            <div class="footer-item">🏫 ابتدائية خالدة الأنصاري</div>
+            <div class="footer-item">👑 قائدة المدرسة الاستاذة: هند المريبض</div>
+        </div>
+
+        <div class="no-print" style="margin: 20px 0; padding-bottom: 40px;">
+            <button class="btn-action" onclick="window.print()" style="background:#2d3436;">🖨 طباعة الشهادة النهائية</button>
+            <button class="btn-action" onclick="location.reload()" style="background:#636e72; margin-right:15px;">🔄 إعادة اللعبة</button>
+        </div>
+    </div>
+
+    <script>
+        let score = 0, mcqIdx = 0, tfIdx = 0;
+        
+        // أسئلة إكمال الفراغ تم وضعها كخيارات متعددة
+        const mcqData = [
+            { q: "من أنماط لبنة اجعل نمط الدوران () نمط ...........................", o: ["لليمين واليسار", "المسافة", "لا دوران"], a: 2 },
+            { q: "لبنة ...........................هي أكثر اللبنات استخداما في سكراتش.", o: ["كرر باستمرار", "180", "لليمين واليسار"], a: 0 },
+            { q: "الزر الافتراضي للبنة مفتاح () مضغوط هو زر........................", o: ["كرر باستمرار", "المسافة", "لا دوران"], a: 1 },
+            { q: "نمط يمين – يسار (left-right) لتحريك الكائن ........................... فقط.", o: ["لليمين واليسار", "180", "لا دوران"], a: 0 },
+            { q: "إذا كنت تريد أن يتجه الكائن إلى الأسفل، اختر الزاوية ....................", o: ["المسافة", "كرر باستمرار", "180"], a: 2 }
+        ];
+
+        // أسئلة الصح والخطأ
+        const tfData = [
+            { q: "لبنات التكرار توجد ضمن لبنات الحركة زرقاء اللون.", a: false },
+            { q: "لبنة 'كرّر باستمرار' لا تحتوي على نتوء في الأسفل لأن الأوامر بداخلها لا تنتهي أبدًا", a: true },
+            { q: "للبنات التكرار ثلاثة أنواع: كرر () مرة وكرر باستمرار وكرر حتى ().", a: true },
+            { q: "تنتمي لبنة (ارتد إذا كنت عند الحافة) للبنات الحركة زرقاء اللون.", a: true },
+            { q: "تجعل لبنة 'ارتد إذا كنت عند الحافة' الكائن يختفي عندما يصل إلى نهاية الشاشة.", a: false },
+            { q: "نستخدم لبنة (اتجه نحو الاتجاه) لجعل الكائن يرتد عندما يلامس حافة الشاشة.", a: false },
+            { q: "القيمة الافتراضية في لبنة 'اتجه نحو الاتجاه ( )' هي 90 درجة، وتعني الاتجاه إلى اليمين.", a: true },
+            { q: "لتوجيه الكائن إلى الأعلى باستخدام لبنة 'اتجه نحو الاتجاه ( )'، نكتب القيمة 180.", a: false },
+            { q: "تحتوي لبنة 'اجعل نمط الدوران' على ثلاثة أنماط مختلفة لتحديد طريقة دوران الكائن.", a: true },
+            { q: "المفتاح الافتراضي المحدد في لبنة الاستشعار 'مفتاح ( ) مضغوط؟' هو مفتاح الإدخال (Enter).", a: false }
+        ];
+
+        function startGame() {
+            if(!document.getElementById('pName').value || !document.getElementById('pGrade').value) { alert("لطفاً أدخلي الاسم والصف"); return; }
+            document.getElementById('dispName').innerText = document.getElementById('pName').value;
+            document.getElementById('topBar').style.display = 'block';
+            loadMCQ(); showScreen('screen-mcq');
+        }
+
+        function loadMCQ() {
+            if(mcqIdx >= mcqData.length) { loadTF(); showScreen('screen-tf'); return; }
+            const item = mcqData[mcqIdx];
+            document.getElementById('mcq-text').innerText = item.q;
+            const container = document.getElementById('mcq-options');
+            container.innerHTML = ""; document.getElementById('mcq-fb').innerText = "";
+            item.o.forEach((txt, i) => {
+                const b = document.createElement('button'); b.className = 'opt-btn'; b.innerText = txt;
+                b.onclick = () => {
+                    const btns = container.querySelectorAll('button'); btns.forEach(btn => btn.disabled = true);
+                    if(i === item.a) { score++; b.classList.add('opt-correct'); document.getElementById('mcq-fb').innerText = "إجابة صحيحة ✨"; } 
+                    else { b.classList.add('opt-wrong'); container.children[item.a].classList.add('opt-correct'); document.getElementById('mcq-fb').innerText = "الإجابة الصحيحة بالأخضر"; }
+                    document.getElementById('dispScore').innerText = score; mcqIdx++; setTimeout(loadMCQ, 1500);
+                };
+                container.appendChild(b);
+            });
+        }
+
+        function loadTF() {
+            if(tfIdx >= tfData.length) { finish(); return; }
+            document.getElementById('tf-text').innerText = tfData[tfIdx].q;
+            document.getElementById('tf-fb').innerText = "";
+        }
+
+        function ansTF(ans) {
+            const item = tfData[tfIdx];
+            const fb = document.getElementById('tf-fb');
+            if(ans === item.a) { score++; fb.innerText = "صحيح! أحسنتِ ✅"; fb.style.color = "#27ae60"; } 
+            else { fb.innerText = "خطأ! ❌"; fb.style.color = "#e74c3c"; }
+            document.getElementById('dispScore').innerText = score; tfIdx++; setTimeout(loadTF, 1200);
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            if(id !== 'none') document.getElementById(id).classList.add('active');
+        }
+
+        function finish() {
+            showScreen('none'); document.getElementById('topBar').style.display = 'none';
+            document.getElementById('cert-screen').style.display = 'block';
+            document.getElementById('cert-name').innerText = document.getElementById('pName').value;
+            document.getElementById('cert-grade').innerText = document.getElementById('pGrade').value;
+            document.getElementById('cert-score').innerText = score;
+            document.getElementById('cert-date').innerText = new Date().toLocaleDateString('ar-SA');
+            let msg = "";
+            if(score >= 14) msg = "مبارك لكِ! لقب 'سفيرة المهارات الرقمية' يليق بكِ تماماً.";
+            else if(score >= 10) msg = "أداء متميز! لديكِ معرفة رائعة بأساسيات سكراتش.";
+            else msg = "محاولة جيدة! عالم البرمجة ممتع وبالممارسة ستصبحين مبدعة.";
+            document.getElementById('cert-msg').innerText = msg;
+        }
+    </script>
+</body>
+</html>
